@@ -25,6 +25,12 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (MainManager.Instance != null)
+        {
+            MainManager.Instance.LoadBestScore();
+            BestScoreText.text = $"Best Score : {MainManager.Instance.bestScorePlayerName} : {MainManager.Instance.bestScore}";
+        }
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -75,11 +81,22 @@ public class GameManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        UpdateBestScore();
+        if (m_Points > MainManager.Instance.bestScore)
+        {
+            UpdateBestScore();
+
+            // Update the best score variables saved in MainManager before using SaveBestScore(),
+            // as SaveBestScore() uses what is saved in the best score variables to fill
+            // the new instance of the SaveData's class members.
+            MainManager.Instance.bestScorePlayerName = MainManager.Instance.playerName;
+            MainManager.Instance.bestScore = m_Points;
+
+            MainManager.Instance.SaveBestScore();
+        }
     }
 
     public void UpdateBestScore()
     {
-        BestScoreText.text = $"Best Score : {MainManager.Instance.inputText} : {m_Points}";
+        BestScoreText.text = $"Best Score : {MainManager.Instance.playerName} : {m_Points}";
     }
 }
